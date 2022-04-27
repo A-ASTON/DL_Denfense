@@ -95,6 +95,7 @@ class TrainTester():
                 print("Model saved to %s" % ofile)            
 
             #schedulerType = 0 # -1: disabled, 0: stepLR, 1: piecewise; stepLR学习率调整;piecewise分段
+            #学习率调整相关
             if self.schedulerType == 0 and (self.scheduler is not None):
                 self.scheduler.step()
                 print("\nLr = %.10f" % (self.scheduler.get_lr()[0]))

@@ -67,7 +67,7 @@ vgg = nn.Sequential(*list(vgg.children())[:31])
 vgg.to(device)
 decoder.to(device)
 
-resnet_model_path = './wideresnet_97.pth'
+resnet_model_path = './resnet_model/resnet34_20_94.pth'
 styleimg_path = './style_img'
 
 resnet_model = torch.load(resnet_model_path)
@@ -203,7 +203,7 @@ def pgd_attack_01(X, true_target, model, mask=None, epsilon=8/255, alpha=0.1, nu
 
 
 if __name__ == "__main__":
-    useCuda = True
+    useCuda = False
     device = torch.device("cuda" if (useCuda and torch.cuda.is_available()) else "cpu")
     dbhome = '../dataset'
     train_loader, test_loader = prjutils.get_mini_imagenet(trainBS=32, testBS=32, dbhome=dbhome)
@@ -214,5 +214,5 @@ if __name__ == "__main__":
 
     style_model = StyleDefenseNet(model)
     style_model.eval()
-    print('=====> Generalization of StyleDefense model... Acc: %.3f%%' % test_generalization(model, test_loader))
-    print('=====> White-box PGD on StyleDefense model... Acc: %.3f%%' % test_pgd_attack(model, test_loader))
+    print('=====> Generalization of StyleDefense model... Acc: %.3f%%' % test_generalization(style_model, test_loader))
+    print('=====> White-box PGD on StyleDefense model... Acc: %.3f%%' % test_pgd_attack(style_model, test_loader))
