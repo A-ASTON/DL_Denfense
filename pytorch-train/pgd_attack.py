@@ -51,7 +51,7 @@ class StyleDefenseNet(nn.Module):
         
         return self.model(x)
 
-device = torch.device('cuda')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 decoder_model_file = r'./models/decoder.pth'
 vgg_model_file = r'./models/vgg_normalised.pth'
 
@@ -70,7 +70,7 @@ decoder.to(device)
 resnet_model_path = './resnet_model/resnet34_20_94.pth'
 styleimg_path = './style_img'
 
-resnet_model = torch.load(resnet_model_path)
+resnet_model = torch.load(resnet_model_path, map_location="cpu")
 resnet_model.eval()
 resnet_model.to(device)
 style_loader = get_style_loader(1, styleimg_path)
@@ -80,6 +80,9 @@ def StyleTransfer(input):
     img_output_temp = {}
     possibility = []
     i = 0
+    # 用15种风格进行风格转移，每种风格有一个预测结果
+    # 多种模板结果如何融合！！！！
+    # 更换pic_transfer算法！！！
     for batch_data in style_loader:
         styleTensor = batch_data[0]
         img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
@@ -153,7 +156,9 @@ def pgd_attack_01(X, true_target, model, mask=None, epsilon=8/255, alpha=0.1, nu
     else:
         delta = torch.zeros_like(X, requires_grad=True)
 
+    # 传入正常样本X时的模型输出
     tmp_output = model(X)
+    # 输出预测标签，保持维度
     pred_init = tmp_output.max(1,keepdim=True)[1]
     
     if mask is None:
@@ -162,8 +167,10 @@ def pgd_attack_01(X, true_target, model, mask=None, epsilon=8/255, alpha=0.1, nu
     deltaBd = delta.data.zero_()
     attackLength = [0] * nData
     loss_list = []
+    #num_iter:10 10步PGD攻击
     for t in range(num_iter):
         x_adv = X + delta*mask
+        #torch.clamp 值压缩到0.0~1.0之间
         x_adv = torch.clamp(x_adv, 0.0, 1.0)
         
         tmp_output = model(x_adv)
@@ -206,9 +213,9 @@ if __name__ == "__main__":
     useCuda = False
     device = torch.device("cuda" if (useCuda and torch.cuda.is_available()) else "cpu")
     dbhome = '../dataset'
-    train_loader, test_loader = prjutils.get_mini_imagenet(trainBS=32, testBS=32, dbhome=dbhome)
+    train_loader, test_loader = prjutils.get_mini_imagenet(trainBS=32, testBS=1, dbhome=dbhome)
     model_path = './resnet_model/resnet34_20_94.pth'
-    model = torch.load(model_path)
+    model = torch.load(model_path, map_location='cpu')
     model.eval()
     model.to(device)
 

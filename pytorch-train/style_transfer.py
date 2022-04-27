@@ -94,7 +94,7 @@ def style_transfer(vgg, decoder, content, style, threshold, alpha=0.6,interpolat
 
 def pic_transfer(imgTensor,styleTensor,vgg,decoder, threshold):
 # def pic_transfer(imgTensor,styleTensor):
-    device = torch.device("cuda")   
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     decoder = net.decoder
     vgg = net.vgg
