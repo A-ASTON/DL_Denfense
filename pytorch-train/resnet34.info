@@ -1,0 +1,44 @@
+Model type: classification
+Criterion: CrossEntropyLoss()
+Optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    initial_lr: 0.001
+    lr: 0.001
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 0.0001
+)
+Model type: classification
+Criterion: CrossEntropyLoss()
+Optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    initial_lr: 0.001
+    lr: 0.001
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 0.0001
+)
+Model type: classification
+Criterion: CrossEntropyLoss()
+Optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    initial_lr: 0.001
+    lr: 0.001
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 0.0001
+)
+Model type: classification
+Criterion: CrossEntropyLoss()
+Optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    initial_lr: 0.001
+    lr: 0.001
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 0.0001
+)

@@ -1,0 +1,5 @@
+Opencv 读进来的图像是numpy.ndarray, HWC。
+opencv 读取的图像为BGR，首先需要转为RGB, img_cv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB)
+
+Torch 要求图像数据格式为: CHW， 因此维度的调换
+
