@@ -1,7 +1,6 @@
 from torch.autograd import Variable
 import project_utils as prjutils
 import os, platform
-os.environ["CUDA_VISIBLE_DEVICES"] = '2'
 import numpy
 
 import sys
@@ -60,8 +59,10 @@ vgg = net.vgg
 decoder.eval()
 vgg.eval()
 
-decoder.load_state_dict(torch.load(decoder_model_file))
-vgg.load_state_dict(torch.load(vgg_model_file))
+decoder.load_state_dict(torch.load(decoder_model_file, map_location=device))
+vgg.load_state_dict(torch.load(vgg_model_file, map_location=device))
+
+
 vgg = nn.Sequential(*list(vgg.children())[:31])
 
 vgg.to(device)
@@ -70,7 +71,8 @@ decoder.to(device)
 resnet_model_path = './resnet_model/resnet34_20_94.pth'
 styleimg_path = './style_img'
 
-resnet_model = torch.load(resnet_model_path)
+resnet_model = torch.load(resnet_model_path,  map_location=device)
+
 resnet_model.eval()
 resnet_model.to(device)
 style_loader = get_style_loader(1, styleimg_path)
@@ -83,15 +85,41 @@ def StyleTransfer(input):
     # 用15种风格进行风格转移，每种风格有一个预测结果
     # 多种模板结果如何融合！！！！
     # 更换pic_transfer算法！！！
+    #方法一：15个里面取最大值的最大值
+    # for batch_data in style_loader:
+    #     styleTensor = batch_data[0]
+    #     img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
+    #     img_output_temp[i] = img_with_style
+    #     model_output_temp[i] = resnet_model(img_with_style)
+    #     possibility.append(model_output_temp[i].data.max(1, keepdim=True)[0])
+    #     i = i + 1
+    # img_output = img_output_temp[possibility.index(max(possibility))]
+
+    #方法二：基于投票，不太行
+    # vote = torch.tensor([0] * 15)
+    # for batch_data in style_loader:
+    #     styleTensor = batch_data[0]
+    #     img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
+    #     img_output_temp[i] = img_with_style
+    #     model_output_temp[i] = resnet_model(img_with_style)
+    #     vote[model_output_temp[i].data.max(1)[1]] += 1 #投票
+    #     i = i + 1
+    # img_output = img_output_temp[vote.max(0)[1].item()]
+
+
+    #方法三：均值法, 15张图片的均值
+    temp = torch.zeros((1, 3, 224, 224))
+
     for batch_data in style_loader:
         styleTensor = batch_data[0]
         img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
-        img_output_temp[i] = img_with_style
-        model_output_temp[i] = resnet_model(img_with_style)
-        possibility.append(model_output_temp[i].data.max(1, keepdim=True)[0])
+        temp = temp.add(img_with_style.cpu())
         i = i + 1
-    img_output = img_output_temp[possibility.index(max(possibility))]
-    return img_output
+    img_output = temp.mean(0, keepdim=True)
+    return img_output.to(device)
+
+    # 方法四：排序平均法？
+    # 方法五：
 
 def test_generalization(test_model, dataloader):
     correct = 0
@@ -210,16 +238,18 @@ def pgd_attack_01(X, true_target, model, mask=None, epsilon=8/255, alpha=0.1, nu
 
 
 if __name__ == "__main__":
-    useCuda = True
+    useCuda = False
     device = torch.device("cuda" if (useCuda and torch.cuda.is_available()) else "cpu")
     dbhome = '../dataset'
     train_loader, test_loader = prjutils.get_mini_imagenet(trainBS=32, testBS=1, dbhome=dbhome)
     model_path = './resnet_model/resnet34_20_94.pth'
-    model = torch.load(model_path)
+
+    model = torch.load(model_path, map_location=device)
+
     model.eval()
     model.to(device)
 
     style_model = StyleDefenseNet(model)
     style_model.eval()
-    print('=====> Generalization of StyleDefense model... Acc: %.3f%%' % test_generalization(style_model, test_loader))
+    #print('=====> Generalization of StyleDefense model... Acc: %.3f%%' % test_generalization(style_model, test_loader))
     print('=====> White-box PGD on StyleDefense model... Acc: %.3f%%' % test_pgd_attack(style_model, test_loader))
