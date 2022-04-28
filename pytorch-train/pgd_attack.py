@@ -70,7 +70,7 @@ decoder.to(device)
 resnet_model_path = './resnet_model/resnet34_20_94.pth'
 styleimg_path = './style_img'
 
-resnet_model = torch.load(resnet_model_path, map_location="cpu")
+resnet_model = torch.load(resnet_model_path)
 resnet_model.eval()
 resnet_model.to(device)
 style_loader = get_style_loader(1, styleimg_path)
@@ -210,12 +210,12 @@ def pgd_attack_01(X, true_target, model, mask=None, epsilon=8/255, alpha=0.1, nu
 
 
 if __name__ == "__main__":
-    useCuda = False
+    useCuda = True
     device = torch.device("cuda" if (useCuda and torch.cuda.is_available()) else "cpu")
     dbhome = '../dataset'
     train_loader, test_loader = prjutils.get_mini_imagenet(trainBS=32, testBS=1, dbhome=dbhome)
     model_path = './resnet_model/resnet34_20_94.pth'
-    model = torch.load(model_path, map_location='cpu')
+    model = torch.load(model_path)
     model.eval()
     model.to(device)
 
