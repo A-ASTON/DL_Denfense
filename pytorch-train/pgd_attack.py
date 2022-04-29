@@ -86,14 +86,14 @@ def StyleTransfer(input, model):
     # 多种模板结果如何融合！！！！
     # 更换pic_transfer算法！！！
     #方法一：15个里面取最大值的最大值
-    # for batch_data in style_loader:
-    #     styleTensor = batch_data[0]
-    #     img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
-    #     img_output_temp[i] = img_with_style
-    #     model_output_temp[i] = model(img_with_style)
-    #     possibility.append(model_output_temp[i].data.max(1, keepdim=True)[0])
-    #     i = i + 1
-    # img_output = img_output_temp[possibility.index(max(possibility))]
+    for batch_data in style_loader:
+        styleTensor = batch_data[0]
+        img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
+        img_output_temp[i] = img_with_style
+        model_output_temp[i] = model(img_with_style)
+        possibility.append(model_output_temp[i].data.max(1, keepdim=True)[0])
+        i = i + 1
+    img_output = img_output_temp[possibility.index(max(possibility))]
 
     #方法二：基于投票，不太行
     # vote = torch.tensor([0] * 15)
@@ -108,15 +108,15 @@ def StyleTransfer(input, model):
 
 
     #方法三：均值法, 15张图片的均值
-    temp = torch.zeros((1, 3, 224, 224)).to(device)
-
-    for batch_data in style_loader:
-        styleTensor = batch_data[0]
-        img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
-        temp = temp.add(img_with_style/style_loader.dataset.size())
-        i = i + 1
-    img_output = temp
-    torch.cuda.empty_cache()
+    # temp = torch.zeros((1, 3, 224, 224)).to(device)
+    #
+    # for batch_data in style_loader:
+    #     styleTensor = batch_data[0]
+    #     img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
+    #     temp = temp.add(img_with_style/style_loader.dataset.size())
+    #     i = i + 1
+    # img_output = temp
+    # torch.cuda.empty_cache()
     return img_output
 
     # 方法四：排序平均法？

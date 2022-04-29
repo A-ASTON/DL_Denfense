@@ -70,7 +70,7 @@ def vggmodel(vgg, input, threshold):
 # attention = SpatialAttentionModule()
 
 
-def style_transfer(vgg, decoder, content, style, threshold, alpha=0.6,interpolation_weights=None):
+def style_transfer(vgg, decoder, content, style, threshold, alpha,interpolation_weights=None):
 # def style_transfer(vgg, decoder, content, style, alpha=0.6,interpolation_weights=None):
     assert (0.0 <= alpha <= 1.0)
     useCuda = True
@@ -111,7 +111,7 @@ def pic_transfer(imgTensor,styleTensor,vgg,decoder, threshold):
     styleTensor = styleTensor.to(device).requires_grad_()
     # styleTensor = coral(styleTensor, imgTensor)
     # output = style_transfer(vgg, decoder, imgTensor, styleTensor, 0.6)
-    output = style_transfer(vgg, decoder, imgTensor, styleTensor, threshold, 0.6)
+    output = style_transfer(vgg, decoder, imgTensor, styleTensor, threshold, 0.1)
 
     # output_name = r'D:\aaaaaaaaaaaaaaaaa\project\pytorch-train\output.jpg'
     # save_image(output, str(output_name))
