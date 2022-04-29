@@ -108,14 +108,14 @@ def StyleTransfer(input, model):
 
 
     #方法三：均值法, 15张图片的均值
-    temp = torch.zeros((1, 3, 224, 224))
+    temp = torch.zeros((1, 3, 224, 224)).to(device)
 
     for batch_data in style_loader:
         styleTensor = batch_data[0]
         img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
-        temp = temp.add(img_with_style.cpu()/style_loader.dataset.size())
+        temp = temp.add(img_with_style/style_loader.dataset.size())
         i = i + 1
-    img_output = temp.to(device)
+    img_output = temp
     torch.cuda.empty_cache()
     return img_output
 
