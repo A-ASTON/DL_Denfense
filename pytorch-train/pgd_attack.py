@@ -46,9 +46,9 @@ class StyleDefenseNet(nn.Module):
         self.model = model
 
     def forward(self, input):
-        x = StyleTransfer(input)
+        x = StyleTransfer(input, self.model)
         
-        return self.model(x)
+        return x
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 decoder_model_file = r'./models/decoder.pth'
@@ -77,7 +77,7 @@ resnet_model.eval()
 resnet_model.to(device)
 style_loader = get_style_loader(1, styleimg_path)
 
-def StyleTransfer(input):
+def StyleTransfer(input, model):
     model_output_temp = {}
     img_output_temp = {}
     possibility = []
@@ -93,7 +93,7 @@ def StyleTransfer(input):
     #     model_output_temp[i] = resnet_model(img_with_style)
     #     possibility.append(model_output_temp[i].data.max(1, keepdim=True)[0])
     #     i = i + 1
-    # img_output = img_output_temp[possibility.index(max(possibility))]
+    # img_output = model(img_output_temp[possibility.index(max(possibility))])
 
     #方法二：基于投票，不太行
     # vote = torch.tensor([0] * 15)
@@ -113,10 +113,10 @@ def StyleTransfer(input):
     for batch_data in style_loader:
         styleTensor = batch_data[0]
         img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
-        temp = temp.add(img_with_style.cpu())
+        temp = temp.add(img_with_style.cpu()/style_loader.dataset.size())
         i = i + 1
-    img_output = temp.mean(0, keepdim=True)
-    return img_output.to(device)
+    img_output = model(temp.to(device))
+    return img_output
 
     # 方法四：排序平均法？
     # 方法五：
@@ -148,7 +148,8 @@ def test_pgd_attack(test_model, dataloader):
     for batch_data in dataloader:
         inputs = batch_data[0].to(device)
         targets = batch_data[1].to(device)
-       
+
+        #假如传入的不是test_model而是resnet_model，那么这是黑盒吗？
         x_adv, deltaBd = pgd_attack_01(inputs, targets, test_model, epsilon=8/255)
         outputs = test_model(x_adv)
         _, pred_idx = torch.max(outputs.data, 1)
