@@ -91,7 +91,7 @@ def StyleTransfer(input, model, alpha):
     for batch_data in style_loader:
         styleTensor = batch_data[0]
         img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, alpha)
-        img_output_temp[i] = img_with_style
+        img_output_temp[i] = img_with_style.to(device)
         model_output_temp[i] = model(img_with_style)
         possibility.append(model_output_temp[i].data.max(1, keepdim=True)[0])
         i = i + 1
@@ -257,7 +257,6 @@ if __name__ == "__main__":
     model.to(device)
 
     style_model = StyleDefenseNet(model, 0.1)
-    style_model.to(device)
     style_model.eval()
     print('=====> Generalization of StyleDefense model... Acc: %.3f%%' % test_generalization(style_model, test_loader))
     print('=====> White-box PGD on StyleDefense model... Acc: %.3f%%' % test_pgd_attack(style_model, test_loader))
