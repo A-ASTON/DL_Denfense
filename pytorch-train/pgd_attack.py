@@ -48,7 +48,7 @@ class StyleDefenseNet(nn.Module):
     def forward(self, input):
         x = StyleTransfer(input, self.model)
         
-        return x
+        return self.model(x)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 decoder_model_file = r'./models/decoder.pth'
@@ -90,10 +90,10 @@ def StyleTransfer(input, model):
     #     styleTensor = batch_data[0]
     #     img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
     #     img_output_temp[i] = img_with_style
-    #     model_output_temp[i] = resnet_model(img_with_style)
+    #     model_output_temp[i] = model(img_with_style)
     #     possibility.append(model_output_temp[i].data.max(1, keepdim=True)[0])
     #     i = i + 1
-    # img_output = model(img_output_temp[possibility.index(max(possibility))])
+    # img_output = img_output_temp[possibility.index(max(possibility))]
 
     #方法二：基于投票，不太行
     # vote = torch.tensor([0] * 15)
@@ -101,7 +101,7 @@ def StyleTransfer(input, model):
     #     styleTensor = batch_data[0]
     #     img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
     #     img_output_temp[i] = img_with_style
-    #     model_output_temp[i] = resnet_model(img_with_style)
+    #     model_output_temp[i] = model(img_with_style)
     #     vote[model_output_temp[i].data.max(1)[1]] += 1 #投票
     #     i = i + 1
     # img_output = img_output_temp[vote.max(0)[1].item()]
@@ -115,7 +115,7 @@ def StyleTransfer(input, model):
         img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
         temp = temp.add(img_with_style.cpu()/style_loader.dataset.size())
         i = i + 1
-    img_output = model(temp.to(device))
+    img_output = temp.to(device)
     torch.cuda.empty_cache()
     return img_output
 
