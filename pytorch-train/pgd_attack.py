@@ -165,7 +165,6 @@ def test_pgd_attack(test_model, dataloader):
         sys.stdout.write("\rGeneralization... Acc: %.3f%% (%d/%d)"
                             % (100. * correct / total, correct, total))
         sys.stdout.flush()
-        torch.cuda.empty_cache()
 
     return 100. * correct / total
 
@@ -228,7 +227,6 @@ def pgd_attack_01(X, true_target, model, mask=None, epsilon=8/255, alpha=0.1, nu
 
         if min(attackLength) > 0:
             break
-        torch.cuda.empty_cache()
 
     for imgk in range(0, nData):
         if attackLength[imgk] == 0:
