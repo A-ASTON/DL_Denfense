@@ -41,12 +41,14 @@ def get_style_loader(batchsize, dbhome):
     return style_loader
 
 class StyleDefenseNet(nn.Module):
-    def __init__(self, model):
+    def __init__(self, model, alpha):
         super(StyleDefenseNet, self).__init__()
         self.model = model
+        self.alpha = alpha
+        print('=====> init StyleDefenseNet alpha: %.1f' % alpha)
 
     def forward(self, input):
-        x = StyleTransfer(input, self.model)
+        x = StyleTransfer(input, self.model, self.alpha)
         
         return self.model(x)
 
@@ -77,7 +79,7 @@ resnet_model.eval()
 resnet_model.to(device)
 style_loader = get_style_loader(1, styleimg_path)
 
-def StyleTransfer(input, model):
+def StyleTransfer(input, model, alpha):
     model_output_temp = {}
     img_output_temp = {}
     possibility = []
@@ -88,7 +90,7 @@ def StyleTransfer(input, model):
     #方法一：15个里面取最大值的最大值
     for batch_data in style_loader:
         styleTensor = batch_data[0]
-        img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 0.1)
+        img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, alpha)
         img_output_temp[i] = img_with_style
         model_output_temp[i] = model(img_with_style)
         possibility.append(model_output_temp[i].data.max(1, keepdim=True)[0])
@@ -145,7 +147,8 @@ def test_generalization(test_model, dataloader):
 def test_pgd_attack(test_model, dataloader):
     correct = 0
     total = 0
-    
+
+
     for batch_data in dataloader:
         inputs = batch_data[0].to(device)
         targets = batch_data[1].to(device)
@@ -253,7 +256,7 @@ if __name__ == "__main__":
     model.eval()
     model.to(device)
 
-    style_model = StyleDefenseNet(model)
+    style_model = StyleDefenseNet(model, 0.1)
     style_model.eval()
     #print('=====> Generalization of StyleDefense model... Acc: %.3f%%' % test_generalization(style_model, test_loader))
     print('=====> White-box PGD on StyleDefense model... Acc: %.3f%%' % test_pgd_attack(style_model, test_loader))
