@@ -116,6 +116,7 @@ def StyleTransfer(input, model):
         temp = temp.add(img_with_style.cpu()/style_loader.dataset.size())
         i = i + 1
     img_output = model(temp.to(device))
+    torch.cuda.empty_cache()
     return img_output
 
     # 方法四：排序平均法？
@@ -161,6 +162,7 @@ def test_pgd_attack(test_model, dataloader):
         sys.stdout.write("\rGeneralization... Acc: %.3f%% (%d/%d)"
                             % (100. * correct / total, correct, total))
         sys.stdout.flush()
+        torch.cuda.empty_cache()
 
     return 100. * correct / total
 
@@ -223,7 +225,8 @@ def pgd_attack_01(X, true_target, model, mask=None, epsilon=8/255, alpha=0.1, nu
 
         if min(attackLength) > 0:
             break
-    
+        torch.cuda.empty_cache()
+
     for imgk in range(0, nData):
         if attackLength[imgk] == 0:
             deltaBd[imgk] = x_adv[imgk,:] - X[imgk,:]
