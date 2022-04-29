@@ -258,5 +258,5 @@ if __name__ == "__main__":
 
     style_model = StyleDefenseNet(model, 0.1)
     style_model.eval()
-    #print('=====> Generalization of StyleDefense model... Acc: %.3f%%' % test_generalization(style_model, test_loader))
+    print('=====> Generalization of StyleDefense model... Acc: %.3f%%' % test_generalization(style_model, test_loader))
     print('=====> White-box PGD on StyleDefense model... Acc: %.3f%%' % test_pgd_attack(style_model, test_loader))

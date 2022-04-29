@@ -70,7 +70,7 @@ def vggmodel(vgg, input, threshold):
 # attention = SpatialAttentionModule()
 
 
-def style_transfer(vgg, decoder, content, style, threshold, alpha,interpolation_weights=None):
+def style_transfer(vgg, decoder, content, style, alpha,interpolation_weights=None):
 # def style_transfer(vgg, decoder, content, style, alpha=0.6,interpolation_weights=None):
     assert (0.0 <= alpha <= 1.0)
     useCuda = True
