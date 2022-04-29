@@ -48,7 +48,7 @@ class StyleDefenseNet(nn.Module):
         print('=====> init StyleDefenseNet alpha: %.1f' % alpha)
 
     def forward(self, input):
-        x = StyleTransfer(input, self.model, self.alpha)
+        x = StyleTransfer(input, self.alpha)
         
         return self.model(x)
 
@@ -79,7 +79,7 @@ resnet_model.eval()
 resnet_model.to(device)
 style_loader = get_style_loader(1, styleimg_path)
 
-def StyleTransfer(input, model, alpha):
+def StyleTransfer(input, alpha):
     model_output_temp = {}
     img_output_temp = {}
     possibility = []
@@ -92,7 +92,7 @@ def StyleTransfer(input, model, alpha):
         styleTensor = batch_data[0]
         img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, alpha)
         img_output_temp[i] = img_with_style.to(device)
-        model_output_temp[i] = model(img_with_style)
+        model_output_temp[i] = resnet_model(img_with_style)
         possibility.append(model_output_temp[i].data.max(1, keepdim=True)[0])
         i = i + 1
     img_output = img_output_temp[possibility.index(max(possibility))]
