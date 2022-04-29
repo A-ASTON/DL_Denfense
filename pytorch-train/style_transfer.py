@@ -92,7 +92,7 @@ def style_transfer(vgg, decoder, content, style, threshold, alpha,interpolation_
     return decoder(feat)
 # def pic_transfer(imgTensor, styleTensor):
 
-def pic_transfer(imgTensor,styleTensor,vgg,decoder, threshold):
+def pic_transfer(imgTensor,styleTensor,vgg,decoder, alpha):
 # def pic_transfer(imgTensor,styleTensor):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -111,7 +111,7 @@ def pic_transfer(imgTensor,styleTensor,vgg,decoder, threshold):
     styleTensor = styleTensor.to(device).requires_grad_()
     # styleTensor = coral(styleTensor, imgTensor)
     # output = style_transfer(vgg, decoder, imgTensor, styleTensor, 0.6)
-    output = style_transfer(vgg, decoder, imgTensor, styleTensor, threshold, 0.1)
+    output = style_transfer(vgg, decoder, imgTensor, styleTensor, alpha)
 
     # output_name = r'D:\aaaaaaaaaaaaaaaaa\project\pytorch-train\output.jpg'
     # save_image(output, str(output_name))

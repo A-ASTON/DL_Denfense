@@ -88,7 +88,7 @@ def StyleTransfer(input, model):
     #方法一：15个里面取最大值的最大值
     for batch_data in style_loader:
         styleTensor = batch_data[0]
-        img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 1.1)
+        img_with_style = img_styler.pic_transfer(input, styleTensor, vgg, decoder, 0.1)
         img_output_temp[i] = img_with_style
         model_output_temp[i] = model(img_with_style)
         possibility.append(model_output_temp[i].data.max(1, keepdim=True)[0])
