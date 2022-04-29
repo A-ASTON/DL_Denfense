@@ -154,7 +154,7 @@ def test_pgd_attack(test_model, dataloader):
         targets = batch_data[1].to(device)
 
         #假如传入的不是test_model而是resnet_model，那么这是黑盒吗？
-        x_adv, deltaBd = pgd_attack_01(inputs, targets, resnet_model, epsilon=8/255)
+        x_adv, deltaBd = pgd_attack_01(inputs, targets, test_model, epsilon=8/255)
         outputs = test_model(x_adv)
         _, pred_idx = torch.max(outputs.data, 1)
         
